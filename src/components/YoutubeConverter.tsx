@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { validateYoutubeUrl, getVideoInfo } from '@/services/youtubeService';
 
 const YoutubeConverter = () => {
   const [url, setUrl] = useState('');
   const [format, setFormat] = useState('mp4');
   const [quality, setQuality] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const videoQualities = ['360p', '480p', '720p', '1080p'];
   const audioQualities = ['128kbps', '192kbps', '256kbps', '320kbps'];
@@ -20,8 +22,41 @@ const YoutubeConverter = () => {
       toast.error('Please enter a YouTube URL');
       return;
     }
-    // We'll implement the conversion logic in the next step
-    toast.info('Converting... This feature will be implemented soon');
+
+    if (!validateYoutubeUrl(url)) {
+      toast.error('Please enter a valid YouTube URL');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const info = await getVideoInfo(url);
+      // For now, we'll just show the video title as proof it's working
+      toast.success(`Found video: ${info.title}`);
+      
+      // In the next step, we'll implement the actual download
+      const downloadUrl = info.formats.find(f => 
+        format === 'mp4' ? f.quality === quality : f.container === 'mp3'
+      )?.url;
+
+      if (downloadUrl) {
+        // Create a temporary link to trigger the download
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${info.title}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast.success('Download started!');
+      } else {
+        toast.error('Selected quality not available');
+      }
+    } catch (error) {
+      toast.error('Failed to process video');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,8 +107,8 @@ const YoutubeConverter = () => {
             </Select>
           </div>
 
-          <Button type="submit" className="w-full">
-            Convert
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Processing...' : 'Convert'}
           </Button>
         </form>
       </CardContent>
