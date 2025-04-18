@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { validateYoutubeUrl, getVideoInfo, VideoInfo } from '@/services/youtubeService';
-import { Download, Video, Music, Loader2 } from 'lucide-react';
+import { Download, Video, Music, Loader2, AlertCircle } from 'lucide-react';
 
 const YoutubeConverter = () => {
   const [url, setUrl] = useState('');
@@ -57,7 +57,15 @@ const YoutubeConverter = () => {
     );
 
     if (selectedFormat) {
-      window.location.href = selectedFormat.url;
+      // Create a hidden anchor element to handle the download properly
+      const downloadLink = document.createElement('a');
+      downloadLink.href = selectedFormat.url;
+      downloadLink.target = '_blank';
+      downloadLink.download = `${videoInfo.title}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
       toast.success('Download started');
       setIsModalOpen(false);
     } else {
@@ -72,6 +80,16 @@ const YoutubeConverter = () => {
           <CardTitle className="text-center">YouTube to MP3/MP4 Converter</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="bg-amber-50 border border-amber-200 rounded p-4 mb-4 text-amber-800">
+            <div className="flex items-start space-x-2">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <p>This is a demo application. Due to browser security restrictions, direct downloading of YouTube videos may be limited.</p>
+                <p className="mt-2">If the direct download doesn't work, you'll be directed to a download page where you can save the file.</p>
+              </div>
+            </div>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
