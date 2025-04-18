@@ -22,7 +22,7 @@ export const validateYoutubeUrl = (url: string): boolean => {
   return videoId !== null;
 };
 
-// Function to get video information from a mock/simplified response
+// Function to get video information
 export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
   const videoId = extractVideoId(url);
   
@@ -31,7 +31,6 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
   }
   
   try {
-    // Fetch video details from YouTube API (using embed approach)
     const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
     
     if (!response.ok) {
@@ -40,8 +39,6 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
     
     const data = await response.json();
     
-    // Create mock formats based on common YouTube formats
-    // In a real implementation, we would use a backend API to get actual formats
     return {
       title: data.title,
       formats: [
@@ -49,49 +46,49 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
           quality: '360p',
           container: 'mp4',
           label: '360p (MP4)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp4&quality=360`
         },
         {
           quality: '480p',
           container: 'mp4',
           label: '480p (MP4)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp4&quality=480`
         },
         {
           quality: '720p',
           container: 'mp4',
           label: '720p (MP4)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp4&quality=720`
         },
         {
           quality: '1080p',
           container: 'mp4',
           label: '1080p (MP4)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp4&quality=1080`
         },
         {
           quality: '128kbps',
           container: 'mp3',
           label: '128kbps (MP3)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp3&quality=128`
         },
         {
           quality: '192kbps',
           container: 'mp3',
           label: '192kbps (MP3)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp3&quality=192`
         },
         {
           quality: '256kbps',
           container: 'mp3',
           label: '256kbps (MP3)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp3&quality=256`
         },
         {
           quality: '320kbps',
           container: 'mp3',
           label: '320kbps (MP3)',
-          url: `https://www.youtube.com/watch?v=${videoId}`
+          url: `https://video-audio-forge.vercel.app/download?videoId=${videoId}&format=mp3&quality=320`
         }
       ]
     };

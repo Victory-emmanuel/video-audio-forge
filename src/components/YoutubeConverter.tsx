@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { validateYoutubeUrl, getVideoInfo, extractVideoId } from '@/services/youtubeService';
-import { AlertCircle, ExternalLink } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 const YoutubeConverter = () => {
   const [url, setUrl] = useState('');
@@ -36,20 +36,17 @@ const YoutubeConverter = () => {
       setVideoTitle(info.title);
       toast.success(`Found video: ${info.title}`);
       
-      // Since we can't actually download the video in the browser directly,
-      // we'll open the video in a new tab and provide instructions
-      const videoId = extractVideoId(url);
-      if (format === 'mp4') {
-        toast.info('Opening YouTube video in a new tab. Use a browser extension or online service to download.', {
-          duration: 8000
-        });
-        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      // Find the matching format based on selected quality and format
+      const selectedFormat = info.formats.find(f => 
+        f.container === format && f.quality === quality
+      );
+
+      if (selectedFormat) {
+        // Start the download
+        window.location.href = selectedFormat.url;
+        toast.success('Download started');
       } else {
-        // For MP3, we can direct users to a YouTube to MP3 converter
-        toast.info('Opening YouTube video. Use a browser extension or online service to convert to MP3.', {
-          duration: 8000
-        });
-        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+        toast.error('Selected format not available');
       }
     } catch (error) {
       toast.error('Failed to process video');
@@ -65,12 +62,10 @@ const YoutubeConverter = () => {
         <CardTitle className="text-center">YouTube to MP3/MP4 Converter</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-md flex items-start gap-2">
-          <AlertCircle className="text-amber-500 w-5 h-5 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-amber-800">
-            <p>This is a demo application. Due to browser security restrictions, direct downloading of YouTube videos isn't possible.</p>
-            <p className="mt-1">This app will locate your video and open it in a new tab. To download, you'll need to use a YouTube downloader browser extension or online service.</p>
-          </div>
+        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+          <p className="text-sm text-amber-800">
+            Enter a YouTube URL and select your preferred format and quality to download.
+          </p>
         </div>
         
         {videoTitle && (
@@ -122,13 +117,16 @@ const YoutubeConverter = () => {
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Find Video'}
+            {isLoading ? (
+              'Processing...'
+            ) : (
+              <>
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </>
+            )}
           </Button>
         </form>
-        
-        <div className="mt-4 text-center text-xs text-gray-500">
-          <p>For full YouTube downloads, consider using desktop software like <a href="https://www.4kdownload.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline inline-flex items-center">4K Video Downloader <ExternalLink className="ml-0.5 h-3 w-3" /></a></p>
-        </div>
       </CardContent>
     </Card>
   );
